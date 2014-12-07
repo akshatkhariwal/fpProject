@@ -104,15 +104,22 @@ url2 = "http://api.rottentomatoes.com/api/public/v1.0/lists/movies/in_theaters.j
 url3 = "http://api.rottentomatoes.com/api/public/v1.0/lists/movies/opening.json?apikey=mb8ewcmfn82ejdf85ppzb87p"
 url4 = "http://api.rottentomatoes.com/api/public/v1.0/lists/movies/upcoming.json?apikey=mb8ewcmfn82ejdf85ppzb87p"
 
+boxOffice :: IO (Either String Movies)
 boxOffice = do
         d <- (eitherDecode <$> (simpleHttp url1)) :: IO (Either String Movies)
         return d
+
+inTheaters :: IO (Either String Movies)
 inTheaters = do
         d <- (eitherDecode <$> (simpleHttp url2)) :: IO (Either String Movies)
         return d
+
+opening :: IO (Either String Movies)
 opening = do
         d <- (eitherDecode <$> (simpleHttp url3)) :: IO (Either String Movies)
         return d
+
+upcoming :: IO (Either String Movies)
 upcoming = do
         d <- (eitherDecode <$> (simpleHttp url4)) :: IO (Either String Movies)
         return d
