@@ -109,20 +109,20 @@ boxOffice = simpleHttp url
 
 --(Just jsonParser) = decode boxOffice :: Maybe Movies
 
-jsonParser = do
-	json <- boxOffice
-	abc <- decode json :: Maybe Movies
-	return abc
+--jsonParser = do
+--	json <- boxOffice
+--	abc <- decode json :: Maybe Movies
+--	return abc
 
---jsonParse :: IO ()
---jsonParse = do
+jsonParse :: IO ()
+jsonParse = do
 -- Get JSON data and decode it
---        d <- (eitherDecode <$> boxOffice) :: IO (Either String Movies)
+        d <- (eitherDecode <$> boxOffice) :: IO (Either String Movies)
  -- If d is Left, the JSON was malformed.
  -- In that case, we report the error.
  -- Otherwise, we perform the operation of
  -- our choice. In this case, print it in XML.
---        case d of
---                Left err -> putStrLn err
---                Right ps -> print ps
+        case d of
+                Left err -> putStrLn err
+                Right ps -> print ps
 
