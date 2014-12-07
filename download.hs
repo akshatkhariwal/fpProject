@@ -34,10 +34,10 @@ data ReleaseDates = ReleaseDates {
 } deriving (Show,Generic)
 
 data Ratings = Ratings {
-	critics_rating :: String
-	, critics_score :: Int
-	, audience_rating :: String
-	, audience_score :: Int
+	critics_rating :: Maybe String
+	, critics_score :: Maybe Int
+	, audience_rating :: Maybe String
+	, audience_score :: Maybe Int
 } deriving (Show,Generic)
 
 data Posters = Posters {
@@ -83,9 +83,6 @@ instance ToJSON Links
 instance FromJSON AlternateIDs
 instance ToJSON AlternateIDs
 
---instance FromJSON Cast
---instance ToJSON Cast
-
 instance FromJSON Posters
 instance ToJSON Posters
 
@@ -101,28 +98,21 @@ instance ToJSON Movie
 instance FromJSON Movies
 instance ToJSON Movies
 
--- the URL we're going to search
-url = "http://api.rottentomatoes.com/api/public/v1.0/lists/movies/box_office.json?apikey=mb8ewcmfn82ejdf85ppzb87p"
+-- the URL to get the data
+url1 = "http://api.rottentomatoes.com/api/public/v1.0/lists/movies/box_office.json?apikey=mb8ewcmfn82ejdf85ppzb87p"
+url2 = "http://api.rottentomatoes.com/api/public/v1.0/lists/movies/in_theaters.json?apikey=mb8ewcmfn82ejdf85ppzb87p"
+url3 = "http://api.rottentomatoes.com/api/public/v1.0/lists/movies/opening.json?apikey=mb8ewcmfn82ejdf85ppzb87p"
+url4 = "http://api.rottentomatoes.com/api/public/v1.0/lists/movies/upcoming.json?apikey=mb8ewcmfn82ejdf85ppzb87p"
 
--- test
-boxOffice = simpleHttp url
-
---(Just jsonParser) = decode boxOffice :: Maybe Movies
-
---jsonParser = do
---	json <- boxOffice
---	abc <- decode json :: Maybe Movies
---	return abc
-
-jsonParse :: IO ()
-jsonParse = do
--- Get JSON data and decode it
-        d <- (eitherDecode <$> boxOffice) :: IO (Either String Movies)
- -- If d is Left, the JSON was malformed.
- -- In that case, we report the error.
- -- Otherwise, we perform the operation of
- -- our choice. In this case, print it in XML.
-        case d of
-                Left err -> putStrLn err
-                Right ps -> print ps
-
+boxOffice = do
+        d <- (eitherDecode <$> (simpleHttp url1)) :: IO (Either String Movies)
+        return d
+inTheaters = do
+        d <- (eitherDecode <$> (simpleHttp url2)) :: IO (Either String Movies)
+        return d
+opening = do
+        d <- (eitherDecode <$> (simpleHttp url3)) :: IO (Either String Movies)
+        return d
+upcoming = do
+        d <- (eitherDecode <$> (simpleHttp url4)) :: IO (Either String Movies)
+        return d
