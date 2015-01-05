@@ -19,7 +19,7 @@ data Movie = Movie {
 	, year :: Int
 	, mpaa_rating :: String
 	, runtime :: Int
-	, critics_consensus :: String
+	, critics_consensus :: Maybe String
 	, release_dates :: ReleaseDates
 	, ratings :: Ratings
 	, synopsis :: String
