@@ -1,5 +1,6 @@
 module AKDatabase where
 
+import AKDownload
 import Database.HDBC
 import Database.HDBC.Sqlite3
 import Control.Monad(when)
@@ -22,11 +23,16 @@ prepDB dbh =
 
 
 --addData :: IConnection conn => conn -> Podcast -> IO Podcast
-addData dbh = 
+addData bO= 
     handleSql errorHandler $
       do -- Insert the castURL into the table.  The database
          -- will automatically assign a cast ID.
-         run dbh "INSERT INTO movies (id, title) VALUES (?,?)" [toSql ("123"), toSql ("ABC")]
+--	 let dbh = conn
+	 d <- connectSqlite3 "test1.db"
+	 prepDB d
+         run d "INSERT INTO movies (id, title) VALUES (?,?)" [toSql (AKDownload.id bO), toSql (AKDownload.title bO)]
+	 commit d
+	 disconnect d
          -- Find out the castID for the URL we just added.
     where errorHandler e = 
               do fail $ "Error adding podcast; does this URL already exist?\n"
