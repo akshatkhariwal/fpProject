@@ -103,26 +103,22 @@ instance ToJSON Movies
 url1 = "http://api.rottentomatoes.com/api/public/v1.0/lists/movies/box_office.json?apikey=mb8ewcmfn82ejdf85ppzb87p"
 url2 = "http://api.rottentomatoes.com/api/public/v1.0/lists/movies/in_theaters.json?apikey=mb8ewcmfn82ejdf85ppzb87p"
 url3 = "http://api.rottentomatoes.com/api/public/v1.0/lists/movies/opening.json?apikey=mb8ewcmfn82ejdf85ppzb87p"
-url4 = "http://api.rottentomatoes.com/api/public/v1.0/lists/movies/upcoming.json?apikey=mb8ewcmfn82ejdf85ppzb87p"
 
---boxOffice :: IO (Either String Movies)
+boxOffice :: IO Movies
 boxOffice = do
         d <- (eitherDecode <$> (simpleHttp url1)) :: IO (Either String Movies)
         case d of
 		Right ps -> return ps
 
-inTheaters :: IO (Either String Movies)
+inTheaters :: IO Movies
 inTheaters = do
         d <- (eitherDecode <$> (simpleHttp url2)) :: IO (Either String Movies)
-        return d
+        case d of
+		Right ps -> return ps
 
---opening :: IO (Either String Movies)
+opening :: IO Movies
 opening = do
         d <- (eitherDecode <$> (simpleHttp url3)) :: IO (Either String Movies)
 	case d of
 		Right ps -> return ps
 
-upcoming :: IO (Either String Movies)
-upcoming = do
-        d <- (eitherDecode <$> (simpleHttp url4)) :: IO (Either String Movies)
-        return d

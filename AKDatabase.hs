@@ -28,7 +28,7 @@ prepDB dbh =
               return ()
        commit dbh
 
-addData :: Movie -> IO ()
+addData :: Movie -> IO String
 addData bO = 
 	handleSql errorHandler $
 		do
@@ -45,6 +45,7 @@ addData bO =
 			mapM (addCastData d (AKDownload.id bO)) $ AKDownload.abridged_cast bO
 			commit d
 			disconnect d
+			return $ AKDownload.title bO
 		where errorHandler e = 
 			do fail $ "Error adding data;\n" ++ show e
 

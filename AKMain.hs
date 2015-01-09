@@ -1,7 +1,11 @@
 import AKDownload
 import AKDatabase
 
-insertInDB = do
-	d <- boxOffice
+insertInDB :: IO Movies -> IO ()
+insertInDB jsonData = do
+	d <- jsonData
 	let a = movies d
-	mapM addData a
+	returnData <- mapM addData a
+	print "Movie Titles added/updated in the Database :-"
+	print returnData
+
