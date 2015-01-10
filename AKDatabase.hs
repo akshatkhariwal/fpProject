@@ -45,7 +45,7 @@ addData bO =
 			mapM (addCastData d (AKDownload.id bO)) $ AKDownload.abridged_cast bO
 			commit d
 			disconnect d
-			return $ AKDownload.title bO
+			return $ ((AKDownload.id bO) ++ " - " ++ (AKDownload.title bO))
 		where errorHandler e = 
 			do fail $ "Error adding data;\n" ++ show e
 
@@ -80,6 +80,13 @@ getCastBridgeData :: IConnection conn => conn -> String -> String -> IO [[SqlVal
 getCastBridgeData dbh movie_id cast_id = 
 	do 
 	r <- quickQuery' dbh "SELECT * from cast_bridge WHERE movie_id = ? AND cast_id = ?" [toSql movie_id, toSql cast_id]
+	return r
+
+getCastInMovieFromDB = 
+	do
+	d <- connectSqlite3 "test3.db"
+	r <- quickQuery' d "SELECT m.title, GROUP_CONCAT(c.name) FROM movies as m, cast as c, cast_bridge as b WHERE m.id = b.movie_id AND b.cast_id = c.id GROUP BY m.title" []
+	disconnect d
 	return r
 
 

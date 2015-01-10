@@ -6,7 +6,6 @@ import Data.Aeson
 import Data.Text
 import Control.Applicative
 import Control.Monad
-import qualified Data.ByteString.Lazy as B
 import GHC.Generics
 
 data Movies = Movies {
@@ -19,11 +18,6 @@ data Movie = Movie {
 	, year :: Int
 	, synopsis :: String
 	, abridged_cast :: [Cast]
-} deriving (Show,Generic)
-
-data ReleaseDates = ReleaseDates {
-	theatre :: Maybe String
-	, dvd :: Maybe String
 } deriving (Show,Generic)
 
 type Characters = [String]
