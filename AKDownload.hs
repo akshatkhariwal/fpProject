@@ -17,35 +17,13 @@ data Movie = Movie {
 	id :: String
 	, title :: String
 	, year :: Int
-	, mpaa_rating :: String
-	, runtime :: Int
-	, critics_consensus :: Maybe String
-	, release_dates :: ReleaseDates
-	, ratings :: Ratings
 	, synopsis :: String
-	, posters :: Posters
 	, abridged_cast :: [Cast]
-	, alternate_ids :: AlternateIDs
-	, links :: Links
 } deriving (Show,Generic)
 
 data ReleaseDates = ReleaseDates {
 	theatre :: Maybe String
 	, dvd :: Maybe String
-} deriving (Show,Generic)
-
-data Ratings = Ratings {
-	critics_rating :: Maybe String
-	, critics_score :: Maybe Int
-	, audience_rating :: Maybe String
-	, audience_score :: Maybe Int
-} deriving (Show,Generic)
-
-data Posters = Posters {
-	thumbnail :: String
-	, profile :: String
-	, detailed :: String
-	, original :: String
 } deriving (Show,Generic)
 
 type Characters = [String]
@@ -65,30 +43,6 @@ instance FromJSON Cast where
 
 instance ToJSON Cast where
      toJSON (Cast name cast_id characters) = object ["name" .= name, "id" .= cast_id, "characters" .= characters]
-
-data AlternateIDs = AlternateIDs {
-	imdb :: String
-} deriving (Show,Generic)
-
-data Links = Links {
-	self:: String
-	, alternate :: String
-	, cast :: String
-	, reviews :: String
-	, similar :: String
-} deriving (Show,Generic)
-
-instance FromJSON Links
-instance ToJSON Links
-
-instance FromJSON AlternateIDs
-instance ToJSON AlternateIDs
-
-instance FromJSON Posters
-instance ToJSON Posters
-
-instance FromJSON Ratings
-instance ToJSON Ratings
 
 instance FromJSON ReleaseDates
 instance ToJSON ReleaseDates

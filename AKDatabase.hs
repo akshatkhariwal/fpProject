@@ -40,8 +40,8 @@ addData bO =
 						[toSql (AKDownload.id bO), toSql (AKDownload.title bO),
 							toSql (AKDownload.year bO), toSql (AKDownload.synopsis bO)])
 				[x] -> (run d "UPDATE movies SET title = ?, year = ?, synopsis = ? WHERE id = ?"
-						[toSql (AKDownload.synopsis bO), toSql (AKDownload.title bO),
-							toSql (AKDownload.year bO), toSql (AKDownload.id bO)])
+						[toSql (AKDownload.title bO), toSql (AKDownload.year bO),
+							toSql (AKDownload.synopsis bO), toSql (AKDownload.id bO)])
 			mapM (addCastData d (AKDownload.id bO)) $ AKDownload.abridged_cast bO
 			commit d
 			disconnect d
