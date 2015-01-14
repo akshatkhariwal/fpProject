@@ -3,11 +3,12 @@ module AKDatabase where
 import AKDownload
 import Database.HDBC
 import Database.HDBC.Sqlite3
+import Data.Maybe
 import Control.Monad(when)
 
 -- Name of the Database
 dbName :: String
-dbName = "test3.db"
+dbName = "movie.db"
 
 -- Function to create table if table does not exists already.
 prepDB :: IConnection conn => conn -> IO ()
@@ -21,7 +22,7 @@ prepDB dbh =
                        \id TEXT NOT NULL PRIMARY KEY,\
                        \title TEXT NOT NULL,\
 		       \year INTEGER NOT NULL,\
-		       \synopsis TEXT,\
+		       \synopsis TEXT\
 		       \)" []
               return ()
        when (not ("cast" `elem` tables)) $
@@ -32,7 +33,8 @@ prepDB dbh =
        when (not ("cast_bridge" `elem` tables)) $
            do run dbh "CREATE TABLE cast_bridge (\
                        \movie_id TEXT NOT NULL,\
-                       \cast_id TEXT NOT NULL)" []
+                       \cast_id TEXT NOT NULL,\
+		       \characters TEXT)" []
               return ()
        commit dbh
 
@@ -85,6 +87,8 @@ addCastData :: IConnection conn => conn -> String -> Cast -> IO Integer
 addCastData dbh movie_id cast =
 	do
 	-- check if particular cast details already exist
+	let charactersList = fromMaybe [""] $ AKDownload.characters cast
+	let characters = unwords charactersList
 	check <- getCastData dbh $ AKDownload.cast_id cast
 	case check of
 		-- if it does not exist, then insert the values
@@ -96,10 +100,11 @@ addCastData dbh movie_id cast =
 	check <- getCastBridgeData dbh movie_id $ AKDownload.cast_id cast
 	case check of
 		-- if it does not exist, then insert the values
-		[] -> (run dbh "INSERT INTO cast_bridge (movie_id, cast_id) VALUES (?,?)"
-				[toSql movie_id, toSql (AKDownload.cast_id cast)])
-		-- else do nothing. here we are returning 0 because run returns the number of rows affected which is integer, so we have to return an integer.
-		[x] -> return 0
+		[] -> (run dbh "INSERT INTO cast_bridge (movie_id, cast_id, characters) VALUES (?,?,?)"
+				[toSql movie_id, toSql (AKDownload.cast_id cast), toSql characters])
+		-- else update the existing data
+		[x] -> (run dbh "UPDATE cast_bridge SET characters = ? WHERE cast_id = ? AND movie_id = ?"
+				[toSql (characters), toSql (AKDownload.cast_id cast), toSql movie_id])
 
 -- Function which executes a query to return data from movie table w.r.t movie id
 getMovieData :: IConnection conn => conn -> String -> IO [[SqlValue]]
@@ -131,6 +136,15 @@ getCastInAllMovieFromDB =
 	disconnect d
 	return r
 
+-- Function to get the name of the movie and charcaters by the castName
+getCharacterNameFromDB :: String -> IO [[SqlValue]]
+getCharacterNameFromDB castName = 
+	do
+	d <- connectSqlite3 dbName
+	r <- quickQuery' d "SELECT c.name, m.title, GROUP_CONCAT(b.characters) FROM movies as m, cast as c, cast_bridge as b WHERE m.id = b.movie_id AND b.cast_id = c.id AND c.name LIKE ? GROUP BY c.name" [toSql ("%" ++ castName ++ "%")]
+	disconnect d
+	return r
+
 -- Function to get all the movies by the cast name.
 -- Here we get the Name of the cast and the comma separated name of movies the person has acted in.
 getMovieByCastFromDB :: String -> IO [[SqlValue]]
@@ -150,6 +164,7 @@ getAllInfoByMovieFromDB movieTitle =
 	disconnect d
 	return r
 
+-- Function to get the Co-Stars of a cast by Movie name from DB
 getCoStarsFromDB :: String -> IO [[SqlValue]]
 getCoStarsFromDB castName = 
 	do
@@ -176,6 +191,7 @@ showCastData [m, c] =
 		cString = (fromSql c)::String
 showCastData x = fail $ "Unexpected result: " ++ show x
 
+--Function to make data returned by getCoStarsFromDB printable on IO
 showCoStarsInfo :: [SqlValue] -> String
 showCoStarsInfo [c1, c2, m] = 
 	show "" ++ "\n" ++ "Cast searched for: " ++ castName ++ " \nMovie: " ++ movieName ++ "\nCo-Stars: " ++ coStars ++ "\n"
@@ -185,6 +201,15 @@ showCoStarsInfo [c1, c2, m] =
 		movieName = (fromSql m)::String
 showCoStarsInfo x = fail $ "Unexpected result: " ++ show x
 
+-- Function to make data from getCharactersNameFromDB printable on IO
+showCharacterInfo :: [SqlValue] -> String
+showCharacterInfo [c1, m, c2] = 
+	show "" ++ "\n" ++ "Cast searched for: " ++ castName ++ " \nMovie: " ++ movieName ++ "\nCharacter(s) played: " ++ charactersPlayed ++ "\n"
+	where 
+		castName = (fromSql c1)::String
+		charactersPlayed = (fromSql c2)::String
+		movieName = (fromSql m)::String
+showCharacterInfo x = fail $ "Unexpected result: " ++ show x
 
 -- Function to make data returned by getAllInfoByMovieFromDB printable on IO	
 showAllMovieInfo :: [SqlValue] -> String

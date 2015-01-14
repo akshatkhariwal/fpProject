@@ -20,19 +20,23 @@ data Movie = Movie {
 	, abridged_cast :: [Cast]
 } deriving (Show,Generic)
 
+type Characters = [String]
+
 data Cast = Cast {
 	name :: String
 	, cast_id :: String
+	, characters :: Maybe Characters
 } deriving (Show)
 
 instance FromJSON Cast where
 	parseJSON (Object v) = Cast <$>
 		v .: "name" <*>
-		v .: "id"
+		v .: "id" <*>
+		v .:? "characters"
 	parseJSON _ = mzero
 
 instance ToJSON Cast where
-     toJSON (Cast name cast_id) = object ["name" .= name, "id" .= cast_id]
+     toJSON (Cast name cast_id characters) = object ["name" .= name, "id" .= cast_id, "characters" .= characters]
 
 instance FromJSON Movie
 instance ToJSON Movie
