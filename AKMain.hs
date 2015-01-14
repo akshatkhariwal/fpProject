@@ -1,29 +1,43 @@
 import AKDownload
 import AKDatabase
-import Database.HDBC
-import Database.HDBC.Sqlite3
+import Data.List (nub)
 
-insertInDB :: IO Movies -> IO ()
-insertInDB jsonData = do
-	d <- jsonData
-	let a = movies d
-	returnData <- mapM addData a
+
+callInsert :: IO ()
+callInsert =
+	do
+	data1 <- insertInDB boxOffice
+	data2 <- insertInDB inTheaters
+	data3 <- insertInDB opening
+	let allMovies = data1 ++ data2 ++ data3
 	print "Movie Titles added/updated in the Database :-"
-	print returnData
+	mapM_ print $ nub allMovies
 
+getCastInMovie :: IO ()
 getCastInMovie =
 	do
-	cast_data <- getCastInMovieFromDB
-	-- Convert each row into a String
-	let stringRows = map convRow cast_data
+	cast_data <- getCastInAllMovieFromDB
+	let stringRows = map showCastData cast_data
 	mapM_ putStr stringRows
 
---printCastData (m:c) = show ((fromSql m)::String) ++ "mo"
+getMovieByCast :: String -> IO ()
+getMovieByCast castName = 
+	do
+	movieNames <- getMovieByCastFromDB castName
+	let stringRows = map showMovieNamesByCast movieNames
+	mapM_ putStr stringRows
 
-convRow :: [SqlValue] -> String
-convRow [m, c] = 
-              show "" ++ "\n" ++ "Movie: " ++ mString ++ " \nCast: " ++ cString ++ "\n"
-              where mString = (fromSql m)::[Char]
-                    cString = (fromSql c)::String
-convRow x = fail $ "Unexpected result: " ++ show x
+getAllInfoByMovie :: String -> IO ()
+getAllInfoByMovie movieTitle = 
+	do
+	movieInfo <- getAllInfoByMovieFromDB movieTitle
+	let stringRows = map showAllMovieInfo movieInfo
+	mapM_ putStr stringRows
+
+getCoStars :: String -> IO ()
+getCoStars castName = 
+	do
+	coStarsInfo <- getCoStarsFromDB castName
+	let stringRows = map showCoStarsInfo coStarsInfo
+	mapM_ putStr stringRows
 
